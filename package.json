@@ -1,0 +1,57 @@
+{
+  "name": "md-reader",
+  "version": "1.0.0",
+  "description": "A fast, beautiful markdown reader and editor for Windows",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && electron . --dev\"",
+    "build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@codemirror/lang-markdown": "^6.2.5",
+    "@uiw/react-codemirror": "^4.23.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.0.1",
+    "electron": "^32.3.3",
+    "electron-builder": "^25.0.0",
+    "marked": "^12.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.4.8",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.mdreader.app",
+    "productName": "MD Reader",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "allowScripts": {
+    "electron@32.3.3": true,
+    "esbuild@0.21.5": true
+  },
+  "dependencies": {
+    "@codemirror/lang-html": "^6.4.12"
+  }
+}
