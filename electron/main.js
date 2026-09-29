@@ -4,6 +4,13 @@ const fs = require('fs')
 
 const isDev = process.argv.includes('--dev')
 
+const SUPPORTED_EXT = /\.(md|markdown|txt|html|htm)$/i
+
+// Find a file path passed as a command-line argument (e.g. double-click on .md file)
+function getFileArgFrom(argv) {
+  return argv.find((a, i) => i > 0 && SUPPORTED_EXT.test(a) && !a.startsWith('-')) || null
+}
+
 let mainWindow
 
 function createWindow() {
@@ -26,9 +33,32 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   }
+
+  // Once the renderer is ready, forward the file path that was passed on launch
+  mainWindow.webContents.once('did-finish-load', () => {
+    const filePath = getFileArgFrom(process.argv)
+    if (filePath) mainWindow.webContents.send('open-file', filePath)
+  })
 }
 
-app.whenReady().then(createWindow)
+// Single-instance lock: if the app is already open and the user double-clicks
+// another file, focus the existing window and open that file instead.
+const gotLock = app.requestSingleInstanceLock()
+
+if (!gotLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (_event, argv) => {
+    const filePath = getFileArgFrom(argv)
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+      if (filePath) mainWindow.webContents.send('open-file', filePath)
+    }
+  })
+
+  app.whenReady().then(createWindow)
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
@@ -119,7 +149,7 @@ ipcMain.handle('fs:writeFile', (event, filePath, content) => {
   }
 })
 
-ipcMain.handle('fs:createFile', async (event, dirPath) => {
+ipcMain.handle('fs:createFile', async (event, dirPath, content = '') => {
   const result = await dialog.showSaveDialog(mainWindow, {
     defaultPath: dirPath ? path.join(dirPath, 'untitled.md') : 'untitled.md',
     filters: [
@@ -130,7 +160,7 @@ ipcMain.handle('fs:createFile', async (event, dirPath) => {
   })
   if (result.canceled) return null
   try {
-    fs.writeFileSync(result.filePath, '', 'utf-8')
+    fs.writeFileSync(result.filePath, content, 'utf-8')
     return result.filePath
   } catch {
     return null

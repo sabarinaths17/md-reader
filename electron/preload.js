@@ -12,8 +12,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readDirectory: (dirPath)          => ipcRenderer.invoke('fs:readDir', dirPath),
   readFile:      (filePath)         => ipcRenderer.invoke('fs:readFile', filePath),
   writeFile:     (filePath, content)=> ipcRenderer.invoke('fs:writeFile', filePath, content),
-  createFile:    (dirPath)          => ipcRenderer.invoke('fs:createFile', dirPath),
+  createFile:    (dirPath, content) => ipcRenderer.invoke('fs:createFile', dirPath, content),
   renameFile:    (oldPath, newName) => ipcRenderer.invoke('fs:renameFile', oldPath, newName),
   deleteFile:    (filePath)         => ipcRenderer.invoke('fs:deleteFile', filePath),
   openExternal:  (url)              => ipcRenderer.send('shell:openExternal', url),
+
+  // Called when the app is launched with a file path (default-app / double-click)
+  onOpenFile: (callback) => ipcRenderer.on('open-file', (_event, filePath) => callback(filePath)),
 })

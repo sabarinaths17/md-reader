@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from 'react'
 import { marked } from 'marked'
+import { openExternal } from '../platform.js'
 
 marked.use({ gfm: true, breaks: false })
 
@@ -44,7 +45,7 @@ export default function Preview({ content, fileType = 'markdown' }) {
   useEffect(() => {
     const handler = (e) => {
       if (e.data?.type === 'open-external' && typeof e.data.url === 'string') {
-        window.electronAPI.openExternal(e.data.url)
+        openExternal(e.data.url)
       }
     }
     window.addEventListener('message', handler)

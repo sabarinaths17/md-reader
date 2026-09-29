@@ -1,0 +1,8 @@
+{
+  "appId": "com.mdreader.app",
+  "appName": "MD Reader",
+  "webDir": "dist",
+  "plugins": {
+    "FilePicker": {}
+  }
+}

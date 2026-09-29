@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { isAndroid } from '../platform.js'
 
 function basename(p) {
   return p.replace(/\\/g, '/').split('/').pop()
@@ -105,12 +106,37 @@ export default function Sidebar({
   folder, fileTree, currentFile,
   onSelectFile, onOpenFolder, onCreateFile, onRefresh, onDeleteFile, onRenameFile,
 }) {
-  const folderName = folder ? basename(folder) : null
+  const folderName = folder && folder !== '@android' ? basename(folder) : null
 
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        {folder ? (
+        {isAndroid ? (
+          // Android: show "Import File" + "New File" + "Refresh"
+          <>
+            <span className="sidebar-folder-name">My Files</span>
+            <div className="sidebar-actions">
+              <button className="icon-btn" onClick={onOpenFolder} title="Import File">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M1 9.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              </button>
+              <button className="icon-btn" onClick={onCreateFile} title="New File">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <line x1="5.5" y1="1" x2="5.5" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <line x1="1" y1="5.5" x2="10" y2="5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+              <button className="icon-btn" onClick={onRefresh} title="Refresh">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M10.5 6a4.5 4.5 0 11-1.32-3.18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+                  <path d="M9.5 1.5v3h-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                </svg>
+              </button>
+            </div>
+          </>
+        ) : folder ? (
           <>
             <span className="sidebar-folder-name" title={folder}>{folderName}</span>
             <div className="sidebar-actions">
@@ -135,8 +161,10 @@ export default function Sidebar({
         )}
       </div>
       <div className="sidebar-tree">
-        {folder && fileTree.length === 0 && (
-          <div className="sidebar-empty">No markdown files found</div>
+        {(folder || isAndroid) && fileTree.length === 0 && (
+          <div className="sidebar-empty">
+            {isAndroid ? 'No files yet — tap ↓ to import' : 'No markdown files found'}
+          </div>
         )}
         {fileTree.map(node => (
           <FileNode

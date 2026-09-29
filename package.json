@@ -1,14 +1,19 @@
 {
   "name": "md-reader",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A fast, beautiful markdown reader and editor for Windows",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && electron . --dev\"",
     "build": "vite build && electron-builder",
+    "android:install": "npm install @capacitor/core @capacitor/filesystem @capacitor/android @capacitor/cli @capawesome/capacitor-file-picker",
+    "build:android": "vite build --mode android && npx cap sync",
+    "android:open": "npx cap open android",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
     "@codemirror/lang-markdown": "^6.2.5",
     "@uiw/react-codemirror": "^4.23.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -32,6 +37,11 @@
       "dist/**/*",
       "electron/**/*"
     ],
+    "fileAssociations": [
+      { "ext": ["md", "markdown"], "name": "Markdown File", "role": "Editor" },
+      { "ext": ["txt"],            "name": "Text File",     "role": "Editor" },
+      { "ext": ["html", "htm"],    "name": "HTML File",     "role": "Editor" }
+    ],
     "win": {
       "target": [
         {
@@ -53,5 +63,11 @@
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.12"
+  },
+  "androidDependencies": {
+    "_note": "Run npm run android:install before building for Android",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capawesome/capacitor-file-picker": "latest"
   }
 }
